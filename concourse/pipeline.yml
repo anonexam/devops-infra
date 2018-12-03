@@ -1,17 +1,17 @@
 jobs:
 # Replace params / app_name with your heroku app name
-- name: deploy-app
+- name: devops-app
   plan:
   - aggregate:
-    - get: monitoring-app
-    - get: monitoring-infra
+    - get: devops-app
+    - get: devops-infra
   - task: mvn_build
-    file: monitoring-infra/concourse/java/task.yml
-    input_mapping: {source: monitoring-app}
+    file: devops-infra/concourse/java/task.yml
+    input_mapping: {source: devops-app}
 
   - task: push_to_heroku
-    file: monitoring-infra/concourse/heroku/push_master_to_heroku.yml
-    input_mapping: {source: monitoring-app}
+    file: devops-infra/concourse/heroku/push_master_to_heroku.yml
+    input_mapping: {source: devops-app}
     params:
       app_name: ((heroku_app_name))
       heroku_email: ((heroku_email))
@@ -21,10 +21,10 @@ jobs:
 - name: infra
   plan:
   - aggregate:
-    - get: monitoring-infra
+    - get: devops-infra
   - task: apply
-    file: monitoring-infra/concourse/terraform/task.yml
-    input_mapping: {source: monitoring-infra}
+    file: devops-infra/concourse/terraform/task.yml
+    input_mapping: {source: devops-infra}
     params:
       github_token: ((github_token))
       heroku_api_key: ((heroku_api_key))
@@ -32,7 +32,7 @@ jobs:
       command: apply
       directories: |
           terraform
-  - put: monitoring-infra
+  - put: devops-infra
     params:
       repository: with-state
       rebase: true
@@ -40,10 +40,10 @@ jobs:
 resources:
 
 # Replace with your own repository
-- name: monitoring-app
+- name: devops-app
   type: git
   source:
-      uri: git@github.com:PGR301-2018/monitoring-app.git
+      uri: git@github.com:anonexam/devops-app.git
       branch: master
       private_key: ((deploy_key_app))
 
@@ -51,6 +51,6 @@ resources:
 - name: monitoring-infra
   type: git
   source:
-      uri: git@github.com:PGR301-2018/monitoring-infra.git
+      uri: git@github.com:anonexam/devops-infra.git
       branch: master
       private_key: ((deploy_key_infra))
