@@ -1,9 +1,9 @@
 # Modify this file to make it your own :-)
 
 variable "app_prefix" {
-  default = "devops"
+  default = "exam"
 }
 
 variable "pipeline_name" {
-  default = "exam"
+  default = "devops"
 }
